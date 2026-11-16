@@ -1,11 +1,27 @@
-# Scaffold only. Audit the application source and its persistent paths before use.
 services:
   serkan-signage:
     build: .
     image: serkan-signage:local
+    container_name: serkan-signage
     restart: unless-stopped
+    init: true
     ports:
-      - "${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8098}:8098"
+      - "${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8098}:8080"
+    environment:
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:?Set INITIAL_ADMIN_PASSWORD in .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      FRAME_ANCESTORS: ${FRAME_ANCESTORS:-}
+      NEWS_FEEDS: ${NEWS_FEEDS:-https://nachrichtenfeeds.br.de/rdf/boards/UZlMIJH,https://nachrichtenfeeds.br.de/rss/nachrichten/seiten/QXAPkQJ}
+      NEWS_ALLOWED_HOSTS: ${NEWS_ALLOWED_HOSTS:-www.br.de,br.de}
+      NEWS_SOURCE_LABEL: ${NEWS_SOURCE_LABEL:-BR24}
+      TZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - signage_data:/data
+      - ${NAS_PHOTOS_PATH:-./examples/nas-photos}:/nas-photos:ro
     security_opt:
       - no-new-privileges:true
-    # TODO: Add reviewed configuration, runtime data and photos volume mounts.
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,size=32m
+volumes:
+  signage_data:
