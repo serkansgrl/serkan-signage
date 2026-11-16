@@ -1,14 +1,30 @@
-# Migration from private Serkan Signage installation
+# Migration and compatibility
 
-The existing application currently runs privately in a Docker container using Python 3.12. The original server must remain untouched during public packaging.
+This repository contains the **general-purpose Serkan Signage code**. It is separate from the maintainer's original private installation.
 
-1. Take a **copy** of application source into a separate, private working directory.
-2. Inspect source/configuration and replace private NAS mount points and fixed network addresses with documented environment variables.
-3. Keep real `config.json`, `secret`, photographs and other runtime data out of version control.
-4. Check paths used by the source before finalizing Docker mounts and the internal service port.
-5. Validate Python syntax, unit tests and HTTP endpoints in a disposable environment.
-6. Verify authentication and browser security headers; confirm the admin path cannot be embedded as an iframe.
-7. Run security scanning and review source manually before pushing to a public repository.
-8. Release a versioned image only after clean installation succeeds.
+## Fresh installation
 
-**Current status:** documentation and packaging scaffold only; the audited Python source has not been supplied to the repository.
+1. Clone the repository and copy `.env.example` to `.env`.
+2. Set a unique password in `INITIAL_ADMIN_PASSWORD` (12+ characters).
+3. Configure local network access and optional `NAS_PHOTOS_PATH`.
+4. Run `docker compose up -d --build`.
+5. Open the dashboard; sign into `/serkan` to update meal items, location and add photos.
+
+## Upgrading
+
+- Back up your `signage_data` volume before upgrading.
+- `config.json`, `secret`, `password.json` and uploaded images must remain together in the **same persistent Docker volume**.
+- The initial password environment variable is used only at first startup when `password.json` does not yet exist.
+- Do not copy data, credentials or NAS mount configuration from another person's server.
+- This public project does not automatically migrate old external Nginx / Cloudflare / LibreSignage configurations.
+- For reverse-proxy deployments, use HTTPS with `COOKIE_SECURE=true`; if you use iframe embeds, configure `FRAME_ANCESTORS` with explicit trusted origins.
+
+## Validation
+
+```sh
+python3 -m unittest discover -s tests -v
+docker compose config
+docker compose build
+```
+
+GitHub Actions runs Python, HTTP and Docker build checks for incoming changes. Production security and data backup remain the deployment administrator's responsibility.

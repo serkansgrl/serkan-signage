@@ -29,7 +29,8 @@ SECRET.chmod(0o600)
 SECRET_BYTES=bytes.fromhex(SECRET.read_text().strip())
 if not PASSFILE.exists():
     pwd=os.environ.get('INITIAL_ADMIN_PASSWORD','')
-    if not pwd: raise RuntimeError('INITIAL_ADMIN_PASSWORD missing')
+    if len(pwd)<12 or pwd.startswith('REPLACE_') or pwd.startswith('CHANGE_ME'):
+        raise RuntimeError('Set a unique INITIAL_ADMIN_PASSWORD (at least 12 chars) before first startup')
     salt=secrets.token_bytes(16)
     digest=hashlib.pbkdf2_hmac('sha256',pwd.encode(),salt,260000)
     PASSFILE.write_text(json.dumps({'salt':salt.hex(),'hash':digest.hex()})); PASSFILE.chmod(0o600)

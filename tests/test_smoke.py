@@ -81,6 +81,14 @@ class SmokeTest(unittest.TestCase):
         self.assertEqual(status,303)
         self.assertIn('Secure',headers.get('Set-Cookie',''))
         self.assertIn('HttpOnly',headers.get('Set-Cookie',''))
+    def test_placeholder_password_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            env=dict(os.environ,SIGNAGE_DATA_DIR=temp,SIGNAGE_HOST='127.0.0.1',
+                SIGNAGE_PORT=str(ephemeral_port()),
+                INITIAL_ADMIN_PASSWORD='REPLACE_WITH_A_STRONG_UNIQUE_PASSWORD')
+            p=subprocess.run([sys.executable,str(APP)],env=env,capture_output=True,timeout=10)
+            self.assertNotEqual(p.returncode,0)
+            self.assertIn(b'INITIAL_ADMIN_PASSWORD',p.stderr)
     def test_upload_is_authenticated(self):
         status,_,_=self.fetch('/upload','POST',b'foo=bar',{'Content-Type':'application/x-www-form-urlencoded'})
         self.assertEqual(status,403)
