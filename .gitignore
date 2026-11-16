@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+data/
+photos/
+nas-photos/
+config.json
+secret
+*.key
+*.pem
+*.sqlite
+*.sqlite3
+.DS_Store
