@@ -9,9 +9,9 @@ data/
 photos/
 nas-photos/
 config.json
+password.json
 secret
 *.key
 *.pem
-*.sqlite
-*.sqlite3
+*.sqlite*
 .DS_Store
