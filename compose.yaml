@@ -1,0 +1,11 @@
+# Scaffold only. Audit the application source and its persistent paths before use.
+services:
+  serkan-signage:
+    build: .
+    image: serkan-signage:local
+    restart: unless-stopped
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8098}:8098"
+    security_opt:
+      - no-new-privileges:true
+    # TODO: Add reviewed configuration, runtime data and photos volume mounts.
