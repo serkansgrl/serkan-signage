@@ -1,0 +1,26 @@
+name: Validate packaging scaffold
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate documentation and packaging
+        run: |
+          test -f README.md
+          test -f README.de.md
+          test -f README.tr.md
+          test -f Dockerfile
+          test -f compose.yaml
+          if [ -f app.py ]; then
+            python3 -m py_compile app.py
+            docker build -t serkan-signage:validation .
+          else
+            echo 'Pre-release: app.py not published yet; container build deferred.'
+          fi
