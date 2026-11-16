@@ -1,4 +1,4 @@
-name: Validate packaging scaffold
+name: Validate application
 on:
   workflow_dispatch:
   pull_request:
@@ -7,20 +7,20 @@ on:
 permissions:
   contents: read
 jobs:
-  validate:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate documentation and packaging
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python syntax and HTTP smoke tests
         run: |
-          test -f README.md
-          test -f README.de.md
-          test -f README.tr.md
-          test -f Dockerfile
-          test -f compose.yaml
-          if [ -f app.py ]; then
-            python3 -m py_compile app.py
-            docker build -t serkan-signage:validation .
-          else
-            echo 'Pre-release: app.py not published yet; container build deferred.'
-          fi
+          python -m py_compile app.py
+          python -m unittest discover -s tests -v
+      - name: Build Docker image
+        run: docker build -t serkan-signage:ci .
+      - name: Validate Compose configuration
+        env:
+          INITIAL_ADMIN_PASSWORD: ci-only-not-a-real-secret-12345
+        run: docker compose -f compose.yaml config --quiet
