@@ -8,6 +8,7 @@ data
 photos
 nas-photos
 config.json
+password.json
 secret
 *.key
 *.pem
